@@ -14,11 +14,12 @@ import re
 import logging
 from more_itertools import one
 import math
-
+import shutil
 
 # xml nodes to updates
 PAGE_DRAW_NODE_PATH = '//office:body/office:drawing/draw:page'
 PAGE_LAYOUT_PROP_PATH = '//office:automatic-styles/style:page-layout/style:page-layout-properties'
+PDF_BOX_SUFFIX = ".pdf.box"
 
 # Misc
 def filtNone(it):
@@ -26,22 +27,30 @@ def filtNone(it):
 
 
 # Some IO file manipulations
-def odg2pdf(odg):
-    logging.info(f"Creating PDF: {odg.replace('.fodg', '.pdf')}")
-    outdir = os.path.dirname(odg)
+def odg2pdf(file):
+    logging.info(f"Creating PDF: {file.replace('.fodg', '.pdf')}")
+    outdir = os.path.dirname(file)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     cmd = [
         "lodraw",
         "--convert-to", "pdf",
         "--outdir", str(outdir),
-        odg
+        file
     ]
+    # Perform the conversion
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         logging.error(f"PDF conversion failed: {e}")
         raise
+
+    # Clean intermediate file
+    try:
+        os.remove(file)
+    except FileNotFoundError:
+        logging.warning(f"Temp file {file} not found for cleanup.")
+
 
 
 def writeOdg(tree, wname):
@@ -54,12 +63,12 @@ def writeOdg(tree, wname):
 
 def findUniqueNode(root, path):
     # Find page content
-    matchs = root.xpath(path, namespaces=root.nsmap)
-    if len(matchs) > 1:
+    matches = root.xpath(path, namespaces=root.nsmap)
+    if len(matches) > 1:
         raise Exception(f"Exceeded number of nodes for path: {path}")
-    if not len(matchs):
+    if not len(matches):
         raise Exception(f"Cannot find node for path: {path}")
-    return matchs[0]
+    return matches[0]
 
 
 def textifyNode(e: Element) -> str:
@@ -288,7 +297,7 @@ def getMatchClass(e: Element):
     for kv in e.attrib.items():
             logging.error(kv)
     
-    raise Exception("Invalid shape")
+    raise Exception(f"Invalid shape: tag={e.tag}, attributes={dict(e.attrib)}")
 
 
 def getBB(e: Element) -> BoundingBox:
@@ -313,9 +322,10 @@ class Region:
     args = None
     # The unique thee of this region
     tree = None
+    root = None
 
     def __init__(self, name: str, bb: BoundingBox):
-        assert(name.endswith(".pdf.box"))
+        assert(name.endswith(PDF_BOX_SUFFIX))
         self.boxname = name
         self.bb = bb
         self.name = name[:-8]
@@ -337,24 +347,24 @@ class Region:
         # make a copy TODO; reread the file to perform inplace modifications
         logging.info(f"Begin pdf generation for {self} in {Region.args.file}...")
         self.tree = etree.parse(Region.args.file)
-        root = self.tree.getroot()
+        self.root = self.tree.getroot()
 
         # Quick test: find the box
-        _, boxnode = one(findNodesByText(root, self.boxname))
+        _, boxnode = one(findNodesByText(self.root, self.boxname))
         boxnode = getParentShapeElement(boxnode)
 
         # Remove it from the root
         boxnode.getparent().remove(boxnode)
 
         # Pass 0: Filter elementes that are not in the box
-        basenode = findUniqueNode(root, PAGE_DRAW_NODE_PATH)
+        basenode = findUniqueNode(self.root, PAGE_DRAW_NODE_PATH)
         for e in basenode:
             if not self.isCollide(getBB(e)):
                 e.getparent().remove(e)
 
         self.debugIntermediateResult('.0')
         
-        # Pass 1: fix page size
+        # Pass 1: fix page and Shift everything to the corner
         # Compute tight bounding box
         if Region.args.notight:
             box_cm = getBB(boxnode).toCmDict()
@@ -362,36 +372,25 @@ class Region:
             box_cm = BoundingBox.fromlist(filtNone(map(getBB, basenode))).toCmDict()
         
         # Set 0 margin
-        node = findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
-        FO_NS = f'{{{root.nsmap["fo"]}}}'
+        node = findUniqueNode(self.root, PAGE_LAYOUT_PROP_PATH)
+        FO_NS = f'{{{self.root.nsmap["fo"]}}}'
         for m in ['top', 'bottom', 'right', 'left']:
             node.attrib[f'{FO_NS}margin-{m}'] = '0cm'
         
         node.attrib[f'{FO_NS}page-width'] = box_cm['w']
         node.attrib[f'{FO_NS}page-height'] = box_cm['h']        
-        self.debugIntermediateResult('.1')
-
         
-        # Pass 2: Shift everything to the corner
+        # Pass 2: 
         for e in basenode:
             applyMove(e, box_cm['x'], box_cm['y'])
-            # Perfom check to test if the figure is in the page
-            # bb = getBB(e)
-            # assert(bb.x >= 0)
-            # assert(bb.y >= 0)
-            # assert(bb.xmax <= cm2int(box_cm["w"]))
-            # assert(bb.ymax <= cm2int(box_cm["h"]))
+
+        self.debugIntermediateResult('.1')
 
         # The last fodg before conversion to pdf
-        wname = self.getWritePath('.fodg')
-        writeOdg(self.tree, wname)
-
+        last_odg_file = self.getWritePath('.fodg')
+        writeOdg(self.tree, last_odg_file)
         # Final : convert fodg to pdf
-        odg2pdf(wname)
-
-        # Clean if needed
-        if not Region.args.dumpfodg:
-            os.remove(wname)
+        odg2pdf(last_odg_file)
 
     @classmethod
     def boxNameMatchPrefix(cls, s: str) -> bool:
@@ -400,14 +399,14 @@ class Region:
     @classmethod
     def initRegions(cls, args, root):
         cls.args = args
-        boxs = []
-        for name, e in findNodesByText(root, r".*.pdf.box"):
+        boxes = []
+        for name, e in findNodesByText(root, r".*" + PDF_BOX_SUFFIX):
             if cls.boxNameMatchPrefix(name):
                 logging.info(f"Process region : {name}")
-                boxs.append(Region(name, getBB(getParentShapeElement(e))))
+                boxes.append(Region(name, getBB(getParentShapeElement(e))))
             else:
                 logging.info(f"Ignore region : {name}")
-        return boxs
+        return boxes
 
 
 def getRectNode(node, x, y, w, h):
@@ -458,6 +457,10 @@ def main():
     args = parser.parse_args()
 
     # Sanitize args
+    if shutil.which("lodraw") is None:
+        logging.error("The 'lodraw' command was not found. Please install LibreOffice.")
+        sys.exit(1)
+        
     tree = etree.parse(args.file)
     root = tree.getroot()
     # Ensures early xml paths are valids
