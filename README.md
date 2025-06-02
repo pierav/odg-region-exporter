@@ -12,17 +12,17 @@ The text specifies the name of the file to be produced (scheme1.pdf.box will pro
 
 # Usage
 
-`exemple/test.fodg` contains 2 regions. `export_subpdf.py` will produces 2 pdf (schem1.pdf and sched2.pdf) containing the content of the box.
+`example/test.fodg` contains 2 regions. `export_subpdf.py` will produces 2 PDFs (scheme1.pdf and scheme2.pdf) containing the content of the box.
 ```
  ┌───────────────────────────────┐
  │┌──────────────────┐           │
- ││schem1.pdf.box    │           │
+ ││scheme1.pdf.box   │           │
  ││                  │           │
  ││   XX------XX+    │           │
  ││                  │           │
  │└──────────────────┘           │
  │              ┌───────────────┐│
- │              │schem2.pdf.box ││
+ │              │scheme2.pdf.box││
  │              │               ││
  │              │               ││
  │              │   XXXX        ││
@@ -38,10 +38,10 @@ The text specifies the name of the file to be produced (scheme1.pdf.box will pro
 
 ```sh
 # Generate one pdf per region
-$ python export_subpdf.py exemple/test.fodg
+$ python export_subpdf.py example/test.fodg
 # Display the generated pdf
-$ evince ./figures/schem1.pdf
-$ evince ./figures/schem2.pdf
+$ evince ./figures/scheme1.pdf
+$ evince ./figures/scheme2.pdf
 ```
 
 # Notes
