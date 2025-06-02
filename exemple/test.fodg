@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:officeooo="http://openoffice.org/2009/office" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ooo="http://openoffice.org/2004/office" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.graphics">
- <office:meta><meta:creation-date>2025-02-25T16:44:35.927758471</meta:creation-date><dc:date>2025-05-29T12:27:21.991459754</dc:date><meta:editing-duration>PT9M30S</meta:editing-duration><meta:editing-cycles>12</meta:editing-cycles><meta:generator>LibreOffice/6.4.7.2$Linux_X86_64 LibreOffice_project/40$Build-2</meta:generator><meta:document-statistic meta:object-count="20"/></office:meta>
+ <office:meta><meta:creation-date>2025-02-25T16:44:35.927758471</meta:creation-date><dc:date>2025-06-01T11:10:46.248147344</dc:date><meta:editing-duration>PT9M56S</meta:editing-duration><meta:editing-cycles>14</meta:editing-cycles><meta:generator>LibreOffice/6.4.7.2$Linux_X86_64 LibreOffice_project/40$Build-2</meta:generator><meta:document-statistic meta:object-count="20"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
-   <config:config-item config:name="VisibleAreaTop" config:type="int">13380</config:config-item>
-   <config:config-item config:name="VisibleAreaLeft" config:type="int">-3420</config:config-item>
+   <config:config-item config:name="VisibleAreaTop" config:type="int">6048</config:config-item>
+   <config:config-item config:name="VisibleAreaLeft" config:type="int">-3045</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">14099</config:config-item>
    <config:config-item config:name="VisibleAreaHeight" config:type="int">9999</config:config-item>
    <config:config-item-map-indexed config:name="Views">
@@ -35,10 +35,10 @@
      <config:config-item config:name="IsClickChangeRotation" config:type="boolean">false</config:config-item>
      <config:config-item config:name="SlidesPerRow" config:type="short">4</config:config-item>
      <config:config-item config:name="EditMode" config:type="int">0</config:config-item>
-     <config:config-item config:name="VisibleAreaTop" config:type="int">13380</config:config-item>
-     <config:config-item config:name="VisibleAreaLeft" config:type="int">-3420</config:config-item>
-     <config:config-item config:name="VisibleAreaWidth" config:type="int">26567</config:config-item>
-     <config:config-item config:name="VisibleAreaHeight" config:type="int">18694</config:config-item>
+     <config:config-item config:name="VisibleAreaTop" config:type="int">6048</config:config-item>
+     <config:config-item config:name="VisibleAreaLeft" config:type="int">-3045</config:config-item>
+     <config:config-item config:name="VisibleAreaWidth" config:type="int">25934</config:config-item>
+     <config:config-item config:name="VisibleAreaHeight" config:type="int">18249</config:config-item>
      <config:config-item config:name="GridCoarseWidth" config:type="int">635</config:config-item>
      <config:config-item config:name="GridCoarseHeight" config:type="int">635</config:config-item>
      <config:config-item config:name="GridFineWidth" config:type="int">158</config:config-item>
@@ -96,7 +96,7 @@
    <config:config-item config:name="PrinterIndependentLayout" config:type="string">low-resolution</config:config-item>
    <config:config-item config:name="PrinterName" config:type="string">Brother_DCP_L3550CDW_series</config:config-item>
    <config:config-item config:name="PrinterPaperFromSetup" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterSetup" config:type="base64Binary">ugH+/0Jyb3RoZXJfRENQX0wzNTUwQ0RXX3NlcmllcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ1VQUzpCcm90aGVyX0RDUF9MMzU1MENEV19zZXJpZQAWAAMA2wAAAAAAAAAEAAhSAAAEdAAASm9iRGF0YSAxCnByaW50ZXI9QnJvdGhlcl9EQ1BfTDM1NTBDRFdfc2VyaWVzCm9yaWVudGF0aW9uPVBvcnRyYWl0CmNvcGllcz0xCmNvbGxhdGU9ZmFsc2UKbWFyZ2luZGFqdXN0bWVudD0wLDAsMCwwCmNvbG9yZGVwdGg9MjQKcHNsZXZlbD0wCnBkZmRldmljZT0xCmNvbG9yZGV2aWNlPTAKUFBEQ29udGV4RGF0YQpEdXBsZXg6Tm9uZQBJbnB1dFNsb3Q6QXV0bwBQYWdlU2l6ZTpBNAAAEgBDT01QQVRfRFVQTEVYX01PREUPAER1cGxleE1vZGU6Ok9mZg==</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary">ugH+/0Jyb3RoZXJfRENQX0wzNTUwQ0RXX3NlcmllcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ1VQUzpCcm90aGVyX0RDUF9MMzU1MENEV19zZXJpZQAWAAMA2wAAAAAAAAAEAAhSAAAEdAAASm9iRGF0YSAxCnByaW50ZXI9QnJvdGhlcl9EQ1BfTDM1NTBDRFdfc2VyaWVzCm9yaWVudGF0aW9uPVBvcnRyYWl0CmNvcGllcz0xCmNvbGxhdGU9ZmFsc2UKbWFyZ2luZGFqdXN0bWVudD0wLDAsMCwwCmNvbG9yZGVwdGg9MjQKcHNsZXZlbD0wCnBkZmRldmljZT0xCmNvbG9yZGV2aWNlPTAKUFBEQ29udGV4RGF0YQpQYWdlU2l6ZTpBNABJbnB1dFNsb3Q6QXV0bwBEdXBsZXg6Tm9uZQAAEgBDT01QQVRfRFVQTEVYX01PREUPAER1cGxleE1vZGU6Ok9mZg==</config:config-item>
    <config:config-item config:name="SaveThumbnail" config:type="boolean">true</config:config-item>
    <config:config-item config:name="SaveVersionOnClose" config:type="boolean">false</config:config-item>
    <config:config-item config:name="ScaleDenominator" config:type="int">1</config:config-item>
@@ -130,7 +130,7 @@
   <draw:stroke-dash draw:name="Long_20_Dot" draw:display-name="Long Dot" draw:style="rect" draw:dots1="1" draw:dots1-length="100%" draw:dots2="1" draw:dots2-length="100%" draw:distance="300%"/>
   <style:default-style style:family="graphic">
    <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap"/>
-   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:punctuation-wrap="simple" style:line-break="strict" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
+   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:punctuation-wrap="simple" style:line-break="strict" style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
    <style:text-properties style:use-window-font-color="true" style:font-name="Liberation Serif" fo:font-size="24pt" fo:language="en" fo:country="US" style:font-name-asian="DejaVu Sans" style:font-size-asian="24pt" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="DejaVu Sans" style:font-size-complex="24pt" style:language-complex="hi" style:country-complex="IN"/>
@@ -359,29 +359,32 @@
    <style:paragraph-properties fo:text-align="center" style:writing-mode="lr-tb"/>
   </style:style>
   <style:style style:name="P3" style:family="paragraph">
+   <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:line-height="100%" fo:text-align="center" fo:text-indent="0cm" style:writing-mode="lr-tb"/>
+  </style:style>
+  <style:style style:name="P4" style:family="paragraph">
    <loext:graphic-properties draw:fill-color="#800080"/>
    <style:paragraph-properties fo:text-align="center" style:writing-mode="lr-tb"/>
   </style:style>
-  <style:style style:name="P4" style:family="paragraph">
+  <style:style style:name="P5" style:family="paragraph">
    <loext:graphic-properties draw:fill="none" draw:fill-color="#ffffff"/>
    <style:paragraph-properties style:writing-mode="lr-tb"/>
   </style:style>
-  <style:style style:name="P5" style:family="paragraph">
+  <style:style style:name="P6" style:family="paragraph">
    <loext:graphic-properties draw:fill="solid"/>
    <style:paragraph-properties fo:text-align="center"/>
   </style:style>
-  <style:style style:name="P6" style:family="paragraph">
+  <style:style style:name="P7" style:family="paragraph">
    <loext:graphic-properties draw:fill-color="#bf0041"/>
    <style:paragraph-properties fo:text-align="center" style:writing-mode="lr-tb"/>
   </style:style>
-  <style:style style:name="P7" style:family="paragraph">
+  <style:style style:name="P8" style:family="paragraph">
    <loext:graphic-properties draw:fill="none"/>
    <style:paragraph-properties style:writing-mode="lr-tb"/>
   </style:style>
-  <style:style style:name="P8" style:family="paragraph">
+  <style:style style:name="P9" style:family="paragraph">
    <style:paragraph-properties fo:text-align="center"/>
   </style:style>
-  <style:style style:name="P9" style:family="paragraph">
+  <style:style style:name="P10" style:family="paragraph">
    <loext:graphic-properties draw:fill="solid"/>
    <style:paragraph-properties fo:text-align="center" style:writing-mode="lr-tb"/>
   </style:style>
@@ -465,7 +468,7 @@
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
     </draw:custom-shape>
     <draw:custom-shape draw:style-name="gr1" draw:text-style-name="P2" draw:layer="layout" svg:width="11.271cm" svg:height="7.143cm" svg:x="2.098cm" svg:y="11.765cm">
-     <text:p text:style-name="P1"><text:span text:style-name="T1">test-</text:span><text:span text:style-name="T1">sample2.pdf.b</text:span><text:span text:style-name="T1">ox</text:span></text:p>
+     <text:p text:style-name="P3"><text:span text:style-name="T1">test-sample2.pdf.box</text:span></text:p>
      <text:p text:style-name="P1"/>
      <text:p text:style-name="P1"/>
      <text:p text:style-name="P1"/>
@@ -483,16 +486,16 @@
      <text:p text:style-name="P1">2.1</text:p>
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
     </draw:custom-shape>
-    <draw:custom-shape draw:style-name="gr5" draw:text-style-name="P3" draw:layer="layout" svg:width="3.81cm" svg:height="1.905cm" svg:x="7.496cm" svg:y="14.94cm">
+    <draw:custom-shape draw:style-name="gr5" draw:text-style-name="P4" draw:layer="layout" svg:width="3.81cm" svg:height="1.905cm" svg:x="7.496cm" svg:y="14.94cm">
      <text:p text:style-name="P1">2.2</text:p>
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
     </draw:custom-shape>
-    <draw:frame draw:style-name="gr6" draw:text-style-name="P4" draw:layer="layout" svg:width="5.298cm" svg:height="0.962cm" svg:x="10.512cm" svg:y="13.67cm">
+    <draw:frame draw:style-name="gr6" draw:text-style-name="P5" draw:layer="layout" svg:width="5.298cm" svg:height="0.962cm" svg:x="10.512cm" svg:y="13.67cm">
      <draw:text-box>
       <text:p>Text that Overlap</text:p>
      </draw:text-box>
     </draw:frame>
-    <draw:frame draw:style-name="gr7" draw:text-style-name="P4" draw:layer="layout" svg:width="3.36cm" svg:height="0.962cm" svg:x="4.175cm" svg:y="7.508cm">
+    <draw:frame draw:style-name="gr7" draw:text-style-name="P5" draw:layer="layout" svg:width="3.36cm" svg:height="0.962cm" svg:x="4.175cm" svg:y="7.508cm">
      <draw:text-box>
       <text:p>Some text</text:p>
      </draw:text-box>
@@ -501,13 +504,13 @@
      <text:p text:style-name="P1">Overlap BOX</text:p>
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
     </draw:custom-shape>
-    <draw:line draw:style-name="gr9" draw:text-style-name="P5" draw:layer="layout" svg:x1="12.747cm" svg:y1="3.857cm" svg:x2="13.541cm" svg:y2="8.302cm">
+    <draw:line draw:style-name="gr9" draw:text-style-name="P6" draw:layer="layout" svg:x1="12.747cm" svg:y1="3.857cm" svg:x2="13.541cm" svg:y2="8.302cm">
      <text:p/>
     </draw:line>
-    <draw:line draw:style-name="gr10" draw:text-style-name="P5" draw:layer="layout" svg:x1="3.051cm" svg:y1="12.717cm" svg:x2="12.576cm" svg:y2="12.717cm">
+    <draw:line draw:style-name="gr10" draw:text-style-name="P6" draw:layer="layout" svg:x1="3.051cm" svg:y1="12.717cm" svg:x2="12.576cm" svg:y2="12.717cm">
      <text:p/>
     </draw:line>
-    <draw:custom-shape draw:style-name="gr11" draw:text-style-name="P6" draw:layer="layout" svg:width="1.588cm" svg:height="2.222cm" svg:x="16.715cm" svg:y="22.113cm">
+    <draw:custom-shape draw:style-name="gr11" draw:text-style-name="P7" draw:layer="layout" svg:width="1.588cm" svg:height="2.222cm" svg:x="16.715cm" svg:y="22.113cm">
      <text:p text:style-name="P1">pipe</text:p>
      <draw:enhanced-geometry svg:viewBox="0 0 88 21600" draw:glue-points="44 ?f6 44 0 0 10800 44 21600 88 10800" draw:text-areas="0 ?f6 88 ?f3" draw:type="can" draw:modifiers="6267.20647773279" draw:enhanced-path="M 44 0 C 20 0 0 ?f2 0 ?f0 L 0 ?f3 C 0 ?f4 20 21600 44 21600 68 21600 88 ?f4 88 ?f3 L 88 ?f0 C 88 ?f2 68 0 44 0 Z N M 44 0 C 20 0 0 ?f2 0 ?f0 0 ?f5 20 ?f6 44 ?f6 68 ?f6 88 ?f5 88 ?f0 88 ?f2 68 0 44 0 Z N">
       <draw:equation draw:name="f0" draw:formula="$0 *2/4"/>
@@ -536,17 +539,17 @@
      <text:p text:style-name="P1"/>
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
     </draw:custom-shape>
-    <draw:frame draw:style-name="gr13" draw:text-style-name="P7" draw:layer="layout" svg:width="10.149cm" svg:height="1.673cm" svg:x="8.631cm" svg:y="21.22cm">
+    <draw:frame draw:style-name="gr13" draw:text-style-name="P8" draw:layer="layout" svg:width="10.149cm" svg:height="1.673cm" svg:x="8.631cm" svg:y="21.22cm">
      <draw:text-box>
       <text:p>Test Group and complex shapes</text:p>
      </draw:text-box>
     </draw:frame>
     <draw:g>
-     <draw:custom-shape draw:style-name="gr14" draw:text-style-name="P6" draw:layer="layout" svg:width="2.222cm" svg:height="2.064cm" svg:x="3.161cm" svg:y="24.336cm">
+     <draw:custom-shape draw:style-name="gr14" draw:text-style-name="P7" draw:layer="layout" svg:width="2.222cm" svg:height="2.064cm" svg:x="3.161cm" svg:y="24.336cm">
       <text:p text:style-name="P1">G0</text:p>
       <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
      </draw:custom-shape>
-     <draw:custom-shape draw:style-name="gr14" draw:text-style-name="P6" draw:layer="layout" svg:width="2.222cm" svg:height="2.064cm" svg:x="5.701cm" svg:y="24.336cm">
+     <draw:custom-shape draw:style-name="gr14" draw:text-style-name="P7" draw:layer="layout" svg:width="2.222cm" svg:height="2.064cm" svg:x="5.701cm" svg:y="24.336cm">
       <text:p text:style-name="P1">G1</text:p>
       <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
      </draw:custom-shape>
@@ -559,7 +562,7 @@
       <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
      </draw:custom-shape>
     </draw:g>
-    <draw:custom-shape draw:style-name="gr16" draw:text-style-name="P6" draw:layer="layout" svg:width="4.127cm" svg:height="2.859cm" svg:x="14.176cm" svg:y="24.811cm">
+    <draw:custom-shape draw:style-name="gr16" draw:text-style-name="P7" draw:layer="layout" svg:width="4.127cm" svg:height="2.859cm" svg:x="14.176cm" svg:y="24.811cm">
      <text:p text:style-name="P1">gem</text:p>
      <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:path-stretchpoint-x="10800" draw:path-stretchpoint-y="10800" draw:text-areas="?f24 ?f26 ?f25 ?f27" draw:type="col-60da8460" draw:modifiers="2000" draw:enhanced-path="M ?f14 ?f16 L ?f13 ?f19 ?f13 ?f18 ?f14 ?f17 ?f15 ?f17 ?f12 ?f18 ?f12 ?f19 ?f15 ?f16 S Z N M ?f4 ?f6 L ?f3 ?f9 ?f13 ?f19 ?f14 ?f16 Z M ?f5 ?f7 L ?f2 ?f8 ?f12 ?f18 ?f15 ?f17 Z N M ?f3 ?f9 L ?f3 ?f8 ?f13 ?f18 ?f13 ?f19 Z M ?f4 ?f7 L ?f5 ?f7 ?f15 ?f17 ?f14 ?f17 Z N M ?f3 ?f8 L ?f4 ?f7 ?f14 ?f17 ?f13 ?f18 Z N M ?f2 ?f8 L ?f2 ?f9 ?f12 ?f19 ?f12 ?f18 Z M ?f5 ?f6 L ?f4 ?f6 ?f14 ?f16 ?f15 ?f16 Z N M ?f2 ?f9 L ?f5 ?f6 ?f15 ?f16 ?f12 ?f19 Z N">
       <draw:equation draw:name="f0" draw:formula="10800/cos(pi/8)"/>
@@ -593,8 +596,8 @@
       <draw:handle draw:handle-position="$0 10800" draw:handle-range-x-minimum="0" draw:handle-range-x-maximum="10800"/>
      </draw:enhanced-geometry>
     </draw:custom-shape>
-    <draw:path draw:style-name="gr17" draw:text-style-name="P9" draw:layer="layout" svg:width="3.82cm" svg:height="6.56cm" draw:transform="rotate (-1.40568817955623) translate (16.0004500426334cm 21.5188594413585cm)" svg:viewBox="0 0 3821 6561" svg:d="M0 6517c429-9 863-17 1291 37 378 47 779-155 935-516 130-298-54-580-102-865-53-311-194-620-156-943 28-248 174-581 493-544 371 43 778 335 1113 163 284-145 304-612 156-935-146-317-375-600-646-822-353-289-815-386-1189-645-215-150-844-268-608-504 253-254 717 24 1076-23 425-55 1054 191 1208-402 31-121 415-618-52-500l-108-18">
-     <text:p text:style-name="P8">curve</text:p>
+    <draw:path draw:style-name="gr17" draw:text-style-name="P10" draw:layer="layout" svg:width="3.82cm" svg:height="6.56cm" draw:transform="rotate (-1.40568817955623) translate (16.0004500426334cm 21.5188594413585cm)" svg:viewBox="0 0 3821 6561" svg:d="M0 6517c429-9 863-17 1291 37 378 47 779-155 935-516 130-298-54-580-102-865-53-311-194-620-156-943 28-248 174-581 493-544 371 43 778 335 1113 163 284-145 304-612 156-935-146-317-375-600-646-822-353-289-815-386-1189-645-215-150-844-268-608-504 253-254 717 24 1076-23 425-55 1054 191 1208-402 31-121 415-618-52-500l-108-18">
+     <text:p text:style-name="P9">curve</text:p>
     </draw:path>
    </draw:page>
   </office:drawing>
