@@ -23,13 +23,21 @@ PAGE_LAYOUT_PROP_PATH = '//office:automatic-styles/style:page-layout/style:page-
 
 # Some IO file manipulations
 def odg2pdf(odg):
-    logging.info(f"Create file {odg.replace('.fodg', '.pdf')}")
+    logging.info(f"Creating PDF: {odg.replace('.fodg', '.pdf')}")
     outdir = os.path.dirname(odg)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    cmd = f"lodraw --convert-to pdf --outdir {outdir} {odg}"
-    print(cmd)
-    subprocess.run(cmd, shell=True, check=True)
+    cmd = [
+        "lodraw",
+        "--convert-to", "pdf",
+        "--outdir", str(outdir),
+        odg
+    ]
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        logging.error(f"PDF conversion failed: {e}")
+        raise
 
 
 def writeOdg(tree, wname):
@@ -211,25 +219,10 @@ class ExtendedElementTransformWH:
         d = {k:getattr(e, k) for k in ('transform', 'width', 'height')}
         assert(not None in d.values())
         rot, x, y = cls.parseTransform(d['transform'])
-        # print("TRANSFORM !!!", rot, x, y, d[NS+'width'], d[NS+'height'])
         # Apply the rotation to the box
-        # TODO: I apply "random" transformations until it seems to work
         xywh = tuple(map(lambda x: float(cm2int(x)), (x, y, d['width'], d['height'])))
         box = BoundingBox(*map(Decimal, rotated_bounding_box(*xywh, float(rot))))
-        print(f"BOX of {xywh} is box {box}")
         return box
-        projx = math.cos(float(rot))
-        if projx < 0.01:
-            w, h = h, w # Rot 90
-        elif projx < 0.99:
-            logging.warning(f"Unhandled rotation in {e}")
-        else: # > 0.99
-            pass # No rotation
-            # raise ValueError(f"Invalid rot={rot} cos(rot)={projx}")
-        x, y = cm2int(x), cm2int(y)
-        x -= w
-        y -= h
-        return BoundingBox(x, y, w, h)
 
     @classmethod
     def applyMove(cls, e, dx, dy):
@@ -276,9 +269,9 @@ def getMatchClass(e: _Element):
         if re.match(rr, name) and not None in (getattr(e, k) for k in keys):
             return model
 
-    print(f'warning: {name} {e}')
+    logging.error(f'Invalid shape {name} {e}')
     for kv in e.attrib.items():
-            print(kv)
+            logging.error(kv)
     
     raise Exception("Invalid shape")
 
@@ -302,14 +295,11 @@ class Region:
     """
     The main class used to apply all passes to an lodg file for each region
     """
-    fname = None # The input file name of this region
     args = None
-
     # The unique thee of this region
     tree = None
 
     def __init__(self, name: str, bb: BoundingBox):
-        # print(f"Find region {name} : {bb} in {Region.fname}")
         assert(name.endswith(".pdf.box"))
         self.boxname = name
         self.bb = bb
@@ -355,11 +345,10 @@ class Region:
         
         # Pass 1: fix page size
         # Compute tight bounding box
-        if Region.args.tight:
-            box_cm = BoundingBox.fromlist(map(getBB, basenode)).toCmDict()
-        else:
+        if Region.args.notight:
             box_cm = getBB(boxnode).toCmDict()
-
+        else:
+            box_cm = BoundingBox.fromlist(map(getBB, basenode)).toCmDict()
         
         # Set 0 margin
         node = findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
@@ -433,7 +422,6 @@ def getRectNode(node, x, y, w, h):
     gnode.attrib[NSDRAW + 'enhanced-path'] = "M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"
 
     snode.append(gnode)
-    # print(etree.tostring(snode, pretty_print=True).decode())
     return snode
 
 
@@ -454,9 +442,8 @@ def main():
     parser.add_argument('file', help='The fodg file to process')
     parser.add_argument('-o', default='./figures', help='output directory')
     parser.add_argument('--prefixpath', default='', help='prefix to not dump everything')
-    parser.add_argument('--tight', default=True, help='Crop the boxes')
+    parser.add_argument('--notight', action='store_true', help='Crop the boxes')
     parser.add_argument('--dumpfodg', action='store_true', help='Dump debug files')
-
     args = parser.parse_args()
 
     # Sanitize args
