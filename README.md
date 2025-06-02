@@ -1,8 +1,8 @@
 # odg-region-exporter
 
-Export odg regions to multiple pdf.
+**Export ODG regions to multiple PDFs**
 
-Rather than manually exporting selections in ODG file to pdf, this script makes it easy to define regions and export them automatically.
+This tool allows you to extract and export specific regions from [LibreOffice Draw](https://www.libreoffice.org/discover/draw/) `.odg` files (in FODG format) into separate PDF files. It is particularly useful for splitting schematic or annotated diagrams into multiple, precisely-cropped PDF outputs based on region markers inside the drawing.
 
 # How to use it
 
