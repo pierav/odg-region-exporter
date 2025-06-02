@@ -3,7 +3,7 @@
 import sys
 from lxml import etree
 from lxml.etree import QName
-from lxml.etree import _Element
+from lxml.etree import Element
 from decimal import Decimal # Use decimal as main unit type
 import subprocess # For odg to pdf
 import argparse
@@ -19,6 +19,10 @@ import math
 # xml nodes to updates
 PAGE_DRAW_NODE_PATH = '//office:body/office:drawing/draw:page'
 PAGE_LAYOUT_PROP_PATH = '//office:automatic-styles/style:page-layout/style:page-layout-properties'
+
+# Misc
+def filtNone(it):
+    return (v for v in it if v is not None)
 
 
 # Some IO file manipulations
@@ -41,7 +45,7 @@ def odg2pdf(odg):
 
 
 def writeOdg(tree, wname):
-    logging.info(f"Create file {wname}")
+    logging.info(f"Creating ODG: {wname}")
     outdir = os.path.dirname(wname)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -52,13 +56,13 @@ def findUniqueNode(root, path):
     # Find page content
     matchs = root.xpath(path, namespaces=root.nsmap)
     if len(matchs) > 1:
-        raise Exception(f"Excedded number of nodes for path: {path}")
+        raise Exception(f"Exceeded number of nodes for path: {path}")
     if not len(matchs):
         raise Exception(f"Cannot find node for path: {path}")
     return matchs[0]
 
 
-def textifyNode(e: _Element) -> str:
+def textifyNode(e: Element) -> str:
     if etree.QName(e).localname != 'p':
         return None
     return ''.join(x.text for x in (e, *e) if x.text)
@@ -74,8 +78,10 @@ def cm2int(x: str) -> Decimal:
     if x is None:
         return None
     if x[-2:] != 'cm':
-        raise Exception(f'{x} must be in cm')
+        raise ValueError(f'{x} must be in cm')
     res = Decimal(x[:-2])
+    if int2cm(res) != x:
+        raise ValueError(f'Bad conversion {x} != {res}')
     return res
 
 def int2cm(x: Decimal) -> str:
@@ -89,13 +95,19 @@ class BoundingBox:
     """
     An usual bounding box used to perform simple geometry
     """
-    def __init__(self, x: float, y: float, width: float, height: float):
-        """ Default constructor """
-        self.x = x
-        self.y = y
-        self.xmax = x + width
-        self.ymax = y + height
+    def __init__(self, x1: Decimal, y1: Decimal, x2: Decimal, y2: Decimal):
+        """Default constructor"""
+        self.x, self.y, self.xmax, self.ymax  = x1, y1, x2, y2
 
+    @classmethod
+    def fromxyxy(cls, x1: Decimal, y1: Decimal, x2: Decimal, y2: Decimal):
+        """Construct from 2 points"""
+        return BoundingBox(x1, y1, x2, y2)
+
+    @classmethod
+    def fromxywh(cls, x: Decimal, y: Decimal, w: Decimal, h: Decimal):
+        """Construct from a box"""
+        return BoundingBox(x, y, x+w, y+h)
 
     @classmethod
     def fromlist(cls, it):
@@ -103,33 +115,34 @@ class BoundingBox:
         return reduce(add, it)
 
     def isPointIn(self, x, y):
+        """Is point x, y inside box"""
         return self.x <= x <= self.xmax and \
                self.y <= y <= self.ymax
     
     def isCollide(self, bb):
+        """Test a colission with another box"""
         if bb is None:
             return False
         return self.isPointIn(bb.x, bb.y) # False negative
 
     def __repr__(self):
+        """Repr function"""
         return f"BoundingBox({self.x}, {self.y}, {self.xmax}, {self.ymax})"
-
-    def width(self) -> int:
-        return self.xmax - self.x
-
-    def height(self) -> int:
-        return self.ymax - self.y
-
-    def merge(self, other):
-        self.x = min(self.x, other.x)
-        self.y = min(self.y, other.y)
-        self.xmax = max(self.xmax, other.xmax)
-        self.ymax = max(self.ymax, other.ymax)
-        return self
 
     def __add__(self, other):
         """Override add func to perform reduce add"""
-        return self.merge(other)
+        return BoundingBox.fromxyxy(
+            min(self.x, other.x),
+            min(self.y, other.y),
+            max(self.xmax, other.xmax),
+            max(self.ymax, other.ymax)
+        )
+
+    def width(self) -> Decimal:
+        return self.xmax - self.x
+
+    def height(self) -> Decimal:
+        return self.ymax - self.y
 
     def toCmDict(self):
         return {'x': int2cm(self.x),
@@ -154,28 +167,28 @@ def setattr(elem, attr_name, value):
 
 
 class ExtendedElementXYXY:
+    KEYS = ('x1', 'y1', 'x2', 'y2') # Care of the order
+
     @classmethod
     def getBB(cls, e):
-        NS = f'{{{e.nsmap["svg"]}}}'
-        d = {k:cm2int(getattr(e, k)) for k in ('x1', 'y1', 'x2', 'y2')}
-        assert(not None in d.values())
-        return BoundingBox(d['x1'], d['y1'], d['x2'] - d['x1'], d['y2'] - d['y1'])
+        d = [cm2int(getattr(e, k)) for k in cls.KEYS]
+        return BoundingBox.fromxyxy(*d)
 
     @classmethod
     def applyMove(cls, e, dx, dy):
-        d = {k:getattr(e, k) for k in ('x1', 'y1', 'x2', 'y2')}
-        assert(not None in d.values())
+        d = {k:getattr(e, k) for k in cls.KEYS}
         delta = lambda k: dx if 'x' in k else dy
         for k, v in d.items():
             setattr(e, k, cmMinusCm(v, delta(k)))
 
 
 class ExtendedElementXYWH:
+    KEYS = ('x', 'y', 'width', 'height') # Care of the order
+
     @classmethod
     def getBB(cls, e):
-        d = {k:cm2int(getattr(e, k)) for k in ('x', 'y', 'width', 'height')}
-        assert(not None in d.values())
-        return BoundingBox(d['x'], d['y'], d['width'], d['height'])
+        d = [cm2int(getattr(e, k)) for k in cls.KEYS]
+        return BoundingBox.fromxywh(*d)
 
     @classmethod
     def applyMove(cls, e, dx, dy):
@@ -183,7 +196,7 @@ class ExtendedElementXYWH:
         setattr(e, 'y', cmMinusCm(getattr(e, 'y'), dy))
 
 
-def rotated_bounding_box(x, y, w, h, ang):
+def rotate(x, y, w, h, ang):
     """Compute the axis-aligned bounding box of a rectangle after rotation.
     """
     # base point in polar cords
@@ -201,6 +214,8 @@ def rotated_bounding_box(x, y, w, h, ang):
 
 
 class ExtendedElementTransformWH:
+    KEYS = ('transform', 'width', 'height')
+
     @classmethod
     def parseTransform(cls, s):
         regex = r'rotate\s*\((-?\d+\.?\d*)\)\s*translate\s*\((-?\d+\.?\d*cm)\s+(-?\d+\.?\d*cm)\)'
@@ -216,12 +231,12 @@ class ExtendedElementTransformWH:
 
     @classmethod
     def getBB(cls, e):
-        d = {k:getattr(e, k) for k in ('transform', 'width', 'height')}
+        d = {k:getattr(e, k) for k in cls.KEYS}
         assert(not None in d.values())
         rot, x, y = cls.parseTransform(d['transform'])
         # Apply the rotation to the box
         xywh = tuple(map(lambda x: float(cm2int(x)), (x, y, d['width'], d['height'])))
-        box = BoundingBox(*map(Decimal, rotated_bounding_box(*xywh, float(rot))))
+        box = BoundingBox.fromxywh(*map(Decimal, rotate(*xywh, float(rot))))
         return box
 
     @classmethod
@@ -235,7 +250,7 @@ class ExtendedElementTransformWH:
 class ExtendedElementGroup:
     @classmethod
     def getBB(cls, e):
-        return BoundingBox.fromlist(map(getBB, e))
+        return BoundingBox.fromlist(filtNone(map(getBB, e)))
         
     @classmethod
     def applyMove(cls, e, dx, dy):
@@ -263,7 +278,7 @@ MATCH_RULES = [
 ]
 
 
-def getMatchClass(e: _Element):
+def getMatchClass(e: Element):
     name = QName(e.tag).localname
     for rr, keys, model in MATCH_RULES:
         if re.match(rr, name) and not None in (getattr(e, k) for k in keys):
@@ -276,15 +291,15 @@ def getMatchClass(e: _Element):
     raise Exception("Invalid shape")
 
 
-def getBB(e: _Element) -> BoundingBox:
+def getBB(e: Element) -> BoundingBox:
     return getMatchClass(e).getBB(e)
 
 
-def applyMove(e: _Element, dx, dy):
+def applyMove(e: Element, dx, dy):
     return getMatchClass(e).applyMove(e, dx, dy)
 
 
-def getParentShapeElement(e: _Element) -> _Element:
+def getParentShapeElement(e: Element) -> Element:
     if QName(e.tag).localname == 'custom-shape':
         return e
     else:
@@ -318,10 +333,6 @@ class Region:
         if Region.args.dumpfodg:
             writeOdg(self.tree, self.getWritePath(key + 'fodg'))  
 
-    def mapToBasenode(self, f):
-        basenode = findUniqueNode(root, PAGE_DRAW_NODE_PATH)
-        return list(map(f, basenode))
-
     def generatePdf(self):
         # make a copy TODO; reread the file to perform inplace modifications
         logging.info(f"Begin pdf generation for {self} in {Region.args.file}...")
@@ -348,7 +359,7 @@ class Region:
         if Region.args.notight:
             box_cm = getBB(boxnode).toCmDict()
         else:
-            box_cm = BoundingBox.fromlist(map(getBB, basenode)).toCmDict()
+            box_cm = BoundingBox.fromlist(filtNone(map(getBB, basenode))).toCmDict()
         
         # Set 0 margin
         node = findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
