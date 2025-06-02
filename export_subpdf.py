@@ -15,8 +15,6 @@ import logging
 from more_itertools import one
 import math
 
-# Some config 
-DUMP_FODG = False # Dump intermediate fodg files
 
 # xml nodes to updates
 PAGE_DRAW_NODE_PATH = '//office:body/office:drawing/draw:page'
@@ -51,10 +49,12 @@ def findUniqueNode(root, path):
         raise Exception(f"Cannot find node for path: {path}")
     return matchs[0]
 
+
 def textifyNode(e: _Element) -> str:
     if etree.QName(e).localname != 'p':
         return None
     return ''.join(x.text for x in (e, *e) if x.text)
+
 
 def findNodesByText(root, regex):
     for e in root.iter():
@@ -75,6 +75,7 @@ def int2cm(x: Decimal) -> str:
 
 def cmMinusCm(cm1: str, cm2: str) -> str:
     return int2cm(cm2int(cm1) - cm2int(cm2))
+
 
 class BoundingBox:
     """
@@ -174,6 +175,23 @@ class ExtendedElementXYWH:
         setattr(e, 'y', cmMinusCm(getattr(e, 'y'), dy))
 
 
+def rotated_bounding_box(x, y, w, h, ang):
+    """Compute the axis-aligned bounding box of a rectangle after rotation.
+    """
+    # base point in polar cords
+    w, h = w, h
+    dts = [[0, 0], [w, 0], [h, math.pi/2], [math.sqrt(w**2 + h**2), math.atan(h / w)]]
+    # Rotate in polar cords
+    for dt in dts:
+        dt[1] -= ang
+    xs = [x + d * math.cos(t) for d, t in dts]
+    ys = [y + d * math.sin(t) for d, t in dts]
+    # New bounding box
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+    return min_x, min_y, max_x - min_x, max_y - min_y
+
+
 class ExtendedElementTransformWH:
     @classmethod
     def parseTransform(cls, s):
@@ -196,16 +214,23 @@ class ExtendedElementTransformWH:
         # print("TRANSFORM !!!", rot, x, y, d[NS+'width'], d[NS+'height'])
         # Apply the rotation to the box
         # TODO: I apply "random" transformations until it seems to work
-        w, h = cm2int(d['width']), cm2int(d['height'])
-        if math.cos(float(rot)) < 0.01:
+        xywh = tuple(map(lambda x: float(cm2int(x)), (x, y, d['width'], d['height'])))
+        box = BoundingBox(*map(Decimal, rotated_bounding_box(*xywh, float(rot))))
+        print(f"BOX of {xywh} is box {box}")
+        return box
+        projx = math.cos(float(rot))
+        if projx < 0.01:
             w, h = h, w # Rot 90
-        elif math.cos(float(rot)) < 0.99:
-            raise Exception(f"Invalid rot: {rot}")
+        elif projx < 0.99:
+            logging.warning(f"Unhandled rotation in {e}")
+        else: # > 0.99
+            pass # No rotation
+            # raise ValueError(f"Invalid rot={rot} cos(rot)={projx}")
         x, y = cm2int(x), cm2int(y)
         x -= w
         y -= h
         return BoundingBox(x, y, w, h)
-        
+
     @classmethod
     def applyMove(cls, e, dx, dy):
         rot, x, y = cls.parseTransform(getattr(e, 'transform'))
@@ -280,38 +305,45 @@ class Region:
     fname = None # The input file name of this region
     args = None
 
+    # The unique thee of this region
+    tree = None
+
     def __init__(self, name: str, bb: BoundingBox):
         # print(f"Find region {name} : {bb} in {Region.fname}")
         assert(name.endswith(".pdf.box"))
         self.boxname = name
-        self.name = name[:-8]
         self.bb = bb
-        self.elems = []
+        self.name = name[:-8]
 
     def isCollide(self, bb: BoundingBox) -> bool:
         return self.bb.isCollide(bb)
-
-    def insertElem(self, e: _Element) -> None:
-        self.elems.append(e)
 
     def __repr__(self) -> str:
         return f"Region({self.name}, {self.bb})"
 
     def getWritePath(self, suffix='') -> str:
-        return args.o + '/' + self.name + suffix
+        return Region.args.o + '/' + self.name + suffix
+
+    def debugIntermediateResult(self, key=''):
+        if Region.args.dumpfodg:
+            writeOdg(self.tree, self.getWritePath(key + 'fodg'))  
+
+    def mapToBasenode(self, f):
+        basenode = findUniqueNode(root, PAGE_DRAW_NODE_PATH)
+        return list(map(f, basenode))
 
     def generatePdf(self):
         # make a copy TODO; reread the file to perform inplace modifications
         logging.info(f"Begin pdf generation for {self} in {Region.args.file}...")
-        tree = etree.parse(Region.args.file)
-        root = tree.getroot()
+        self.tree = etree.parse(Region.args.file)
+        root = self.tree.getroot()
 
         # Quick test: find the box
-        _, elemBox = one(findNodesByText(root, self.boxname))
-        elemBox = getParentShapeElement(elemBox)
+        _, boxnode = one(findNodesByText(root, self.boxname))
+        boxnode = getParentShapeElement(boxnode)
 
         # Remove it from the root
-        elemBox.getparent().remove(elemBox)
+        boxnode.getparent().remove(boxnode)
 
         # Pass 0: Filter elementes that are not in the box
         basenode = findUniqueNode(root, PAGE_DRAW_NODE_PATH)
@@ -319,17 +351,15 @@ class Region:
             if not self.isCollide(getBB(e)):
                 e.getparent().remove(e)
 
-        if DUMP_FODG:
-            writeOdg(tree, self.getWritePath('.0.fodg'))
+        self.debugIntermediateResult('.0')
         
         # Pass 1: fix page size
         # Compute tight bounding box
         if Region.args.tight:
             box_cm = BoundingBox.fromlist(map(getBB, basenode)).toCmDict()
         else:
-            box_cm = getBB(elemBox).toCmDict()
+            box_cm = getBB(boxnode).toCmDict()
 
-        # print(f"Box BoundingBox is {box_cm}")
         
         # Set 0 margin
         node = findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
@@ -338,12 +368,10 @@ class Region:
             node.attrib[f'{FO_NS}margin-{m}'] = '0cm'
         
         node.attrib[f'{FO_NS}page-width'] = box_cm['w']
-        node.attrib[f'{FO_NS}page-height'] = box_cm['h']
-        # print(etree.tostring(node).decode())
+        node.attrib[f'{FO_NS}page-height'] = box_cm['h']        
+        self.debugIntermediateResult('.1')
 
-        if DUMP_FODG:
-            writeOdg(tree, self.getWritePath('.1.fodg'))
-
+        
         # Pass 2: Shift everything to the corner
         for e in basenode:
             applyMove(e, box_cm['x'], box_cm['y'])
@@ -356,13 +384,13 @@ class Region:
 
         # The last fodg before conversion to pdf
         wname = self.getWritePath('.fodg')
-        writeOdg(tree, wname)
+        writeOdg(self.tree, wname)
 
         # Final : convert fodg to pdf
         odg2pdf(wname)
 
         # Clean if needed
-        if not DUMP_FODG:
+        if not Region.args.dumpfodg:
             os.remove(wname)
 
     @classmethod
@@ -382,35 +410,76 @@ class Region:
         return boxs
 
 
-# setup logging
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+def getRectNode(node, x, y, w, h):
+    ns = node.nsmap
+    snode = etree.Element(f"{{{ns['draw']}}}custom-shape", nsmap=node.nsmap)
+    NSSVG = f'{{{ns["svg"]}}}'
+    NSDRAW = f'{{{ns["draw"]}}}'
+    kv = {
+        f'{{{ns["draw"]}}}style-name': "gr8",
+        f'{{{ns["draw"]}}}text-style-name': "P2",
+        f'{{{ns["draw"]}}}layer': "layout",
+        f'{{{ns["svg"]}}}width': w,
+        f'{{{ns["svg"]}}}height': h,
+        f'{{{ns["svg"]}}}x': x,
+        f'{{{ns["svg"]}}}y': y
+    }
+    for k, v in kv.items():
+        snode.attrib[k] = v
+
+    gnode = etree.Element(f"{{{ns['draw']}}}enhanced-geometry", nsmap=node.nsmap)
+    gnode.attrib[NSSVG + 'viewBox'] = "0 0 21600 21600"
+    gnode.attrib[NSDRAW + 'type'] = "rectangle"
+    gnode.attrib[NSDRAW + 'enhanced-path'] = "M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"
+
+    snode.append(gnode)
+    # print(etree.tostring(snode, pretty_print=True).decode())
+    return snode
 
 
-# Parse args
-parser = argparse.ArgumentParser(
-    prog='export_subpdf.py',
-    description='Export odg regions to multiple pdf',
-    epilog=':)')
-
-parser.add_argument('file', help='The fodg file to process')
-parser.add_argument('-o', default='./figures', help='output directory')
-parser.add_argument('--prefixpath', default='', help='prefix to not dump everything')
-parser.add_argument('--tight', default=True, help='Crop the boxes')
-
-args = parser.parse_args()
-
-# Sanitize args
-tree = etree.parse(args.file)
-root = tree.getroot()
-# Ensures early xml paths are valids
-findUniqueNode(root, PAGE_DRAW_NODE_PATH)
-findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
-
-# Get regions
-regions = Region.initRegions(args, root)
-
-# Generate pdfs
-for region in regions:
-    region.generatePdf()
+def node2bbnode(node):
+    bb = getBB(node).toCmDict()
+    return getRectNode(node, *(bb[x] for x in 'xywh'))
 
 
+def main():
+    # setup logging
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+    # Parse args
+    parser = argparse.ArgumentParser(
+        prog='export_subpdf.py',
+        description='Export odg regions to multiple pdf',
+        epilog=':)')
+    parser.add_argument('file', help='The fodg file to process')
+    parser.add_argument('-o', default='./figures', help='output directory')
+    parser.add_argument('--prefixpath', default='', help='prefix to not dump everything')
+    parser.add_argument('--tight', default=True, help='Crop the boxes')
+    parser.add_argument('--dumpfodg', action='store_true', help='Dump debug files')
+
+    args = parser.parse_args()
+
+    # Sanitize args
+    tree = etree.parse(args.file)
+    root = tree.getroot()
+    # Ensures early xml paths are valids
+    basenode = findUniqueNode(root, PAGE_DRAW_NODE_PATH)
+    findUniqueNode(root, PAGE_LAYOUT_PROP_PATH)
+
+    # Draw bounding box
+    # newnodes = [node2bbnode(node) for node in basenode if getBB(node)]
+    # for node in newnodes:
+    #     basenode.append(node)
+    # writeOdg(tree, args.o + '/box.fodg')
+    # exit(1)
+
+    # Get regions
+    regions = Region.initRegions(args, root)
+
+    # Generate pdfs
+    for region in regions:
+        region.generatePdf()
+
+
+if __name__ == "__main__":
+    main()
