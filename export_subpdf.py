@@ -15,6 +15,7 @@ import logging
 from more_itertools import one
 import math
 import shutil
+import tempfile
 
 # xml nodes to updates
 PAGE_DRAW_NODE_PATH = '//office:body/office:drawing/draw:page'
@@ -28,7 +29,7 @@ def filtNone(it):
 
 # Some IO file manipulations
 def odg2pdf(file):
-    logging.info(f"Creating PDF: {file.replace('.fodg', '.pdf')}")
+    logging.debug(f"Creating PDF: {file.replace('.fodg', '.pdf')}")
     outdir = os.path.dirname(file)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -52,9 +53,68 @@ def odg2pdf(file):
         logging.warning(f"Temp file {file} not found for cleanup.")
 
 
+def generate_ps(pdf_path: str, ps_out: str):
+    """
+    Convert PDF to PostScript and normalize metadata.
+    """
+    # Convert PDF to PS
+    subprocess.run(["pdf2ps", str(pdf_path), str(ps_out)], check=True)
+
+    # Read PS content
+    with open(ps_out, "r", encoding="latin1") as f:
+        lines = f.readlines()
+
+    # Normalize CreationDate and Creator
+    with open(ps_out, "w", encoding="latin1") as f:
+        for line in lines:
+            if line.startswith("%%CreationDate:"):
+                f.write("%%CreationDate: D:00000000000000\n")
+            elif line.startswith("%%Creator:"):
+                f.write("%%Creator: Normalized\n")
+            else:
+                f.write(line)
+
+
+def compare_pdfs(pdf1_path: str, pdf2_path: str) -> bool:
+    """
+    Compare two PDFs by converting to normalized PS.
+    Returns True if identical, False if different.
+    """
+    if not os.path.isfile(pdf2_path):
+        return False
+
+    with tempfile.NamedTemporaryFile(suffix=".ps") as tmp1, \
+         tempfile.NamedTemporaryFile(suffix=".ps") as tmp2:
+
+        generate_ps(pdf1_path, tmp1.name)
+        generate_ps(pdf2_path, tmp2.name)
+
+        # Compare the PS files
+        result = subprocess.run(["diff", "-q", tmp1.name, tmp2.name],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
+
+        return result.returncode == 0
+
+
+def compare_and_replace(pdf1_path: str, pdf2_path: str):
+    """
+    Compare two PDFs.
+    If different, replace pdf2 with pdf1.
+    """
+    identical = compare_pdfs(pdf1_path, pdf2_path)
+
+    if not identical:
+        # PDFs differ: replace pdf2 with pdf1
+        logging.info(f"Finnaly Generate {pdf2_path}")
+        shutil.copy2(pdf1_path, pdf2_path)
+    else:
+        logging.info(f"Skip generation of {pdf2_path}")
+    return identical
+
 
 def writeOdg(tree, wname):
-    logging.info(f"Creating ODG: {wname}")
+    logging.debug(f"Creating ODG: {wname}")
     outdir = os.path.dirname(wname)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -376,21 +436,31 @@ class Region:
         FO_NS = f'{{{self.root.nsmap["fo"]}}}'
         for m in ['top', 'bottom', 'right', 'left']:
             node.attrib[f'{FO_NS}margin-{m}'] = '0cm'
-        
+
         node.attrib[f'{FO_NS}page-width'] = box_cm['w']
-        node.attrib[f'{FO_NS}page-height'] = box_cm['h']        
-        
-        # Pass 2: 
+        node.attrib[f'{FO_NS}page-height'] = box_cm['h']
+
+        # Pass 2:
         for e in basenode:
             applyMove(e, box_cm['x'], box_cm['y'])
 
         self.debugIntermediateResult('.1')
 
         # The last fodg before conversion to pdf
-        last_odg_file = self.getWritePath('.fodg')
+        last_odg_file = self.getWritePath('.tmp.fodg')
         writeOdg(self.tree, last_odg_file)
         # Final : convert fodg to pdf
+        tmp_pdf_file = self.getWritePath('.tmp.pdf')
+        final_pdf_file = self.getWritePath('.pdf')
         odg2pdf(last_odg_file)
+
+        # Pass 3: Check if modifications appends
+        compare_and_replace(tmp_pdf_file, final_pdf_file)
+        # Clean intermediate file
+        try:
+            os.remove(tmp_pdf_file)
+        except FileNotFoundError:
+            logging.warning(f"Temp file {tmp_pdf_file} not found for cleanup.")
 
     @classmethod
     def boxNameMatchPrefix(cls, s: str) -> bool:
@@ -400,6 +470,7 @@ class Region:
     def initRegions(cls, args, root):
         cls.args = args
         boxes = []
+        logging.info("*** odg-region-exporter ***")
         for name, e in findNodesByText(root, r".*" + PDF_BOX_SUFFIX):
             if cls.boxNameMatchPrefix(name):
                 logging.info(f"Process region : {name}")
